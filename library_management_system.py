@@ -1,116 +1,130 @@
 """
-Date: 18 january 2021
-Author: Sanam kandar
-Project: Student library management system
+Date: 18 January 2021
+Author: Sanam Kandar
+Project: Student Library Management System
 """
 
 class Person:
+    """Base class for all people in the library system."""
     def __init__(self, name):
         self.name = name
-
     def display_role(self):
         print(f"{self.name} is a person.")
 
 class Library:
-    def __init__(self, listofBooks):
-        self.books = listofBooks
-
-    def displayAvailableBooks(self):
-        print(f"\n{len(self.books)} AVAILABLE BOOKS ARE: ")
+    """Handles all library operations."""
+    def __init__(self, books):
+        self.books = books
+        self.borrowed_books = []  # Encapsulation: replaces global track variable
+    def display_available_books(self):
+        print(f"\n{len(self.books)} AVAILABLE BOOKS:")
         for book in self.books:
-            print(" ♦-- " + book)
-        print("\n")
-
-    def borrowBook(self, name, bookname):
-        if bookname not in self.books:
+            print(f" ♦-- {book}")
+        print()
+    def borrow_book(self, student_name, book_name):
+        if book_name not in self.books:
             print(
-                f"{bookname} BOOK IS NOT AVAILABLE EITHER TAKEN BY SOMEONE ELSE, WAIT UNTIL HE RETURNED.\n")
+                f"{book_name} is not available. It may already be borrowed.\n"
+            )
         else:
-            track.append({name: bookname})
-            print("BOOK ISSUED : THANK YOU KEEP IT WITH CARE AND RETURN ON TIME.\n")
-            self.books.remove(bookname)
-
-    def returnBook(self, bookname):
-        print("BOOK RETURNED : THANK YOU! \n")
-        self.books.append(bookname)
-
-    def donateBook(self, bookname):
-        print("BOOK DONATED : THANK YOU VERY MUCH, HAVE A GREAT DAY AHEAD.\n")
-        self.books.append(bookname)
-
+            self.borrowed_books.append(
+                {"student": student_name, "book": book_name}
+            )
+            self.books.remove(book_name)
+            print("BOOK ISSUED: Please return it on time.\n")
+    def return_book(self, student_name, book_name):
+        record = {"student": student_name, "book": book_name}
+        if record in self.borrowed_books:
+            self.borrowed_books.remove(record)
+            self.books.append(book_name)
+            print("BOOK RETURNED: Thank you!\n")
+        else:
+            print("No matching borrowing record found.\n")
+    def donate_book(self, book_name):
+        self.books.append(book_name)
+        print("BOOK DONATED: Thank you for your contribution!\n")
+    def display_borrowed_books(self):
+        if not self.borrowed_books:
+            print("NO BOOKS ARE CURRENTLY ISSUED.\n")
+            return
+        for record in self.borrowed_books:
+            print(f"{record['book']} is issued to {record['student']}.")
+        print()
 
 class Student(Person):
-
-    def __init__(self, name=""):
-        super().__init__(name)
-
+    """Student class derived from Person."""
     def display_role(self):
         print(f"{self.name} is a student.")
-
-    def requestBook(self):
-        print("So, you want to borrow book!")
-        self.book = input("Enter name of the book you want to borrow: ")
-        return self.book
-
-    def returnBook(self):
-        print("So, you want to return book!")
-        name = input("Enter your name: ")
-        self.book = input("Enter name of the book you want to return: ")
-        if {name: self.book} in track:
-            track.remove({name: self.book})
-        return self.book
-
-    def donateBook(self):
-        print("Okay! you want to doante book!")
-        self.book = input("Enter name of the book you want to donate: ")
-        return self.book
+    def request_book(self):
+        print("So, you want to borrow a book!")
+        return input("Enter book name: ")
+    def return_book(self):
+        print("So, you want to return a book!")
+        student_name = input("Enter your name: ")
+        book_name = input("Enter book name: ")
+        return student_name, book_name
+    def donate_book(self):
+        print("You want to donate a book!")
+        return input("Enter book name: ")
 
 class Librarian(Person):
-
-    def __init__(self, name):
-        super().__init__(name)
-
+    """Librarian class derived from Person."""
     def display_role(self):
         print(f"{self.name} is the librarian.")
 
-if __name__ == "__main__":
+def main():
+    delhi_library = Library(
+        [
+            "vistas",
+            "invention",
+            "rich&poor",
+            "indian",
+            "macroeconomics",
+            "microeconomics",
+        ]
+    )
+    student = Student("Guest")
 
-    Delhilibrary = Library(
-        ["vistas", "invention", "rich&poor", "indian", "macroeconomics", "microeconomics"])
-    student = Student()
-    track = []
+    print("\t\t♦♦♦ WELCOME TO THE DELHI LIBRARY ♦♦♦\n")
 
-    print("\t\t\t\t\t\t\t♦♦♦♦♦♦♦ WELCOME TO THE DELHI LIBRARY ♦♦♦♦♦♦♦\n")
-    print("""CHOOSE WHAT YOU WANT TO DO:-\n1. Listing all books\n2. Borrow books\n3. Return books\n4. Donate books\n5. Track books\n6. exit the library\n""")
+    while True:
+        print(
+            """
+1. List all books
+2. Borrow a book
+3. Return a book
+4. Donate a book
+5. Track borrowed books
+6. Exit
+"""
+        )
 
-    while (True):
-        # print(track)
         try:
-            usr_response = int(input("Enter your choice: "))
+            choice = int(input("Enter your choice: "))
 
-            if usr_response == 1:  # listing
-                Delhilibrary.displayAvailableBooks()
-            elif usr_response == 2:  # borrow
-                Delhilibrary.borrowBook(
-                    input("Enter your name: "), student.requestBook())
-            elif usr_response == 3:  # return
-                Delhilibrary.returnBook(student.returnBook())
-            elif usr_response == 4:  # donate
-                Delhilibrary.donateBook(student.donateBook())
-            elif usr_response == 5:  # track
-                for i in track:
-                    for key, value in i.items():
-                        holder = key
-                        book = value
-                        print(f"{book} book is taken/issued by {holder}.")
-                print("\n")
-                if len(track) == 0:
-                    print("NO BOOKS ARE ISSUED!. \n")
-            
-            elif usr_response == 6: #exit
-                print("THANK YOU ! \n")
-                exit()
+            if choice == 1:
+                delhi_library.display_available_books()
+
+            elif choice == 2:
+                name = input("Enter your name: ")
+                book = student.request_book()
+                delhi_library.borrow_book(name, book)
+            elif choice == 3:
+                name, book = student.return_book()
+                delhi_library.return_book(name, book)
+            elif choice == 4:
+                book = student.donate_book()
+                delhi_library.donate_book(book)
+            elif choice == 5:
+                delhi_library.display_borrowed_books()
+            elif choice == 6:
+                print("THANK YOU! Visit Again.")
+                break
             else:
-                print("INVAILD INPUT! \n")
-        except Exception as e:              #catch errors
-            print(f"{e}---> INVALID INPUT! \n")
+                print("INVALID CHOICE!\n")
+
+        except ValueError:
+            print("Please enter numbers only.\n")
+
+if __name__ == "__main__":
+    main()
